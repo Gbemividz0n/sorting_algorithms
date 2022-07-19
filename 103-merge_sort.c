@@ -1,89 +1,105 @@
 #include "sort.h"
+#include <stdio.h>
+/**
+ * print_data - print data
+ * @msg: message
+ * @a: array
+ * @from: from
+ * @to: to
+ * Return: no return
+ */
+void print_data(char *msg, int *a, int from, int to)
+{
+	char *sep;
+	int i;
+
+	printf("[%s]: ", msg);
+	sep = "";
+
+	for (i = from; i <= to; i++)
+	{
+		printf("%s%d", sep, a[i]);
+		sep = ", ";
+	}
+	printf("\n");
+}
 
 /**
- * merge_sort - function to call division of merge function recursively
- * @array: array to be sorted
- * @size: size of the array
- * Return: void
+ * merge - Auxiliar function for
+ * Merge sort algorithm
+ * @a: array
+ * @low: low index
+ * @middle: middle
+ * @high: high index
+ * @buff: buffer
+ * Return: no return
+ */
+void merge(int *a, int low, int middle, int high, int *buff)
+{
+	int lo, lm, i;
+
+	lo = i = low;
+	lm = middle + 1;
+
+	printf("Merging...\n");
+	print_data("left", a, low, middle);
+	print_data("right", a, middle + 1, high);
+
+	while (lo <= middle && lm <= high)
+	{
+		if (a[lo] < a[lm])
+			buff[i++] = a[lo++];
+		else
+			buff[i++] = a[lm++];
+	}
+
+	while (lo <= middle)
+		buff[i++] = a[lo++];
+
+	while (lm <= high)
+		buff[i++] = a[lm++];
+
+	for (i = low; i <= high; i++)
+		a[i] = buff[i];
+
+	print_data("Done", a, low, high);
+}
+/**
+ * msort -Auxiliar function for
+ * Merge sort algorithm
+ * @array: array
+ * @low: low index
+ * @high: high index
+ * @buffer: buffer
+ * Return: no return
+ */
+void msort(int *array, int low, int high, int *buffer)
+{
+	int midle;
+
+	if (low < high)
+	{
+		midle = (low + high - 1) / 2;
+		msort(array, low, midle, buffer);
+		msort(array, midle + 1, high, buffer);
+		merge(array, low, midle, high, buffer);
+	}
+}
+/**
+ * merge_sort -Sorts an arrayof integers
+ * in ascending order using the
+ * Merge sort algorithm
+ * @array: array
+ * @size: size
+ * Return: no return
  */
 void merge_sort(int *array, size_t size)
 {
-	int *tmp;
+	int *buffer;
 
-	if (array == NULL || size <= 1)
+	buffer = malloc(sizeof(int) * size);
+	if (!buffer)
 		return;
-
-	tmp = malloc(sizeof(array[0]) * size);
-	if (tmp == NULL)
-		return;
-
-	merge_rec(array, tmp, 0, size);
-	free(tmp);
-}
-
-/**
- * merge_rec - recursion part of the merge sort
- * @array: array to be sorted
- * @tmp: temporary array to store sorted elements
- * @left: left index of array to sort
- * @right: right index of array to sort
- * Return: void
- */
-void merge_rec(int *array, int *tmp, size_t left, size_t right)
-{
-	size_t middle, i = 0, newleft = 0, newright = 0;
-
-	if (right - left <= 1)
-		return;
-
-	middle = (right + left) / 2;
-	merge_rec(array, tmp, left, middle);
-	merge_rec(array, tmp, middle, right);
-	printf("Merging...\n");
-	print(array, "left", left, middle);
-	print(array, "right", middle, right);
-	newleft = left;
-	newright = middle;
-
-	for (i = left; i < right; i++)
-	{
-		if (newleft < middle && (newright >= right || array[newleft]
-					 < array[newright]))
-		{
-			tmp[i] = array[newleft];
-			newleft++;
-		}
-		else
-		{
-			tmp[i] = array[newright];
-			newright++;
-		}
-	}
-	print(tmp, "Done", left, right);
-	for (i = left; i < right; i++)
-	{
-		array[i] = tmp[i];
-	}
-}
-
-/**
- * print - print function to print arrays
- * @array: array to be printed
- * @order: order of array to be printed
- * @left: left index to print
- * @right: right index to print
- * Return: void
- */
-void print(int *array, char *order, size_t left, size_t right)
-{
-	size_t n;
-
-	printf("[%s]: ", order);
-	for (n = left; n < right; n++)
-	{
-		if (n > left)
-			printf(", ");
-		printf("%d", array[n]);
-	}
-	printf("\n");
+	msort(array, 0, size - 1, buffer);
+	free(buffer);
 }
