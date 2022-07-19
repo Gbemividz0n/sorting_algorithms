@@ -1,84 +1,96 @@
 #include "sort.h"
-#include <stdio.h>
-/**
- * swap_nums - swaps numbers
- *
- * @arr: input array
- * @a: first index
- * @b: second index
- * Return: no return
- */
-void swap_nums(int *arr, int a, int b)
-{
-	arr[a] = arr[a] + arr[b];
-	arr[b] = arr[a] - arr[b];
-	arr[a] = arr[a] - arr[b];
-}
 
 /**
- * recursion_heap - recursion that builds the max heap tree
- *
- * @arr: input array
- * @i: index number
+ * heap_sort - function to sort array using heap sort algorithm
+ * @array: array to be sorted
  * @size: size of the array
- * @limit: limit of the array
- * Return: no return
- */
-void recursion_heap(int *arr, int i, size_t size, int limit)
-{
-	int bigger;
-	int i2;
-
-	i2 = i * 2;
-
-	if (i2 + 2 < limit)
-	{
-		recursion_heap(arr, i2 + 1, size, limit);
-		recursion_heap(arr, i2 + 2, size, limit);
-	}
-
-	if (i2 + 1 >= limit)
-		return;
-
-	if (i2 + 2 < limit)
-		bigger = (arr[i2 + 1] > arr[i2 + 2]) ? (i2 + 1) : (i2 + 2);
-	else
-		bigger = i2 + 1;
-
-	if (arr[i] < arr[bigger])
-	{
-		swap_nums(arr, i, bigger);
-		print_array(arr, size);
-		recursion_heap(arr, bigger, size, limit);
-	}
-}
-
-/**
- * heap_sort - sorts an array of integers in ascending
- * order using the Heap sort algorithm
- *
- * @array: input array
- * @size: size of the array
+ * Return: void
  */
 void heap_sort(int *array, size_t size)
 {
-	int i;
-	size_t limit;
-
-	if (!array || size == 0)
+	if (array == NULL || size <= 1)
 		return;
+	max_heap(array, size);
+	heap(array, size, size - 1);
+}
 
-	i = 0;
-	limit = size;
+/**
+ * max_heap - function that build the heap
+ * @array: array to use for building heap
+ * @size: size of the array
+ * Return: void
+ */
+void max_heap(int *array, size_t size)
+{
+	int max;
 
-	while (limit > 1)
+	for (max = (size - 1) / 2; max >= 0; max--)
+		child(array, size, size - 1, max);
+}
+
+/**
+ * child - function to check and assign children in right place
+ * @array: array to use to determine children
+ * @size: size of array
+ * @last: last index of heap created
+ * @max: current indexed element of the heap
+ */
+void child(int *array, size_t size, size_t last, size_t max)
+{
+	size_t lchild, rchild, maxchild = 0;
+
+	lchild = 2 * max + 1;
+	rchild = 2 * max + 2;
+
+	if (lchild > last)
+		return;
+	if (rchild <= last && array[rchild] > array[lchild])
+		maxchild = rchild;
+
+	else
+		maxchild = lchild;
+
+	if (array[maxchild] > array[max])
 	{
-		recursion_heap(array, i, size, limit);
-		if (array[i] >= array[limit - 1])
-		{
-			swap_nums(array, i, limit - 1);
-			print_array(array, size);
-		}
-		limit--;
+		swap_heap(array, maxchild, max);
+		print_array(array, size);
+		child(array, size, last, maxchild);
 	}
+
+}
+
+
+/**
+ * swap_heap - function to swap elements
+ * @array: array being passed
+ * @a: swap element 1
+ * @b: swap element 2
+ * Return: void
+ */
+void swap_heap(int *array, size_t a, size_t b)
+{
+	int temp;
+
+	temp = array[a];
+	array[a] = array[b];
+	array[b] = temp;
+}
+
+
+/**
+ * heap - function to recursively sort for heap_sort
+ * @array: array to be sorted
+ * @size: size of the array
+ * @last: last index of the heap
+ * Return: void
+ */
+void heap(int *array, size_t size, size_t last)
+{
+	if (last == 0)
+		return;
+	swap_heap(array, 0, last);
+	print_array(array, size);
+	last--;
+	child(array, size, last, 0);
+	heap(array, size, last);
 }
